@@ -16,9 +16,11 @@ class ViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-   
-        setupARView()
         
+        arView.session.delegate = self
+        
+        setupARView()
+
          arView.addGestureRecognizer(UITapGestureRecognizer(target:self, action: #selector(handleTap(recognizer:))))
         
         
@@ -26,7 +28,7 @@ class ViewController: UIViewController {
     
    
     
-    // MARK: Setup Methods This is what I can't get to work for ze life of me. it doesnt know what automatically configure session is.
+    // MARK: Setup Methods
     
     func setupARView () {
         arView.automaticallyConfigureSession = false
@@ -35,6 +37,9 @@ class ViewController: UIViewController {
         configuration.environmentTexturing = .automatic
         arView.session.run(configuration)
     }
+    
+    // MARK: Object Placement
+    
     @objc
     func handleTap(recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: arView)
@@ -47,6 +52,26 @@ class ViewController: UIViewController {
             arView.session.add(anchor: anchor)
         } else {
             print("ERROR: Object placement failed to find surface.")
+        }
+    }
+    func placeObject(named entityname: String, for anchor: ARAnchor) {
+        let entity = try! ModelEntity.loadModel(named: entityname)
+        
+        entity.generateCollisionShapes(recursive: true)
+        arView.installGestures([.rotation, .translation], for: entity)
+        
+        let anchorEntity = AnchorEntity(anchor: anchor)
+        anchorEntity.addChild(entity)
+        arView.scene.addAnchor(anchorEntity)
+    }
+}
+
+extension ViewController: ARSessionDelegate {
+    func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        for anchor in anchors {
+            if let anchorName = anchor.name, anchorName == "ContemporaryFan" {
+                placeObject(named: anchorName, for: anchor)
+            }
         }
     }
 }
