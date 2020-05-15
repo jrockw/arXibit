@@ -48,7 +48,7 @@ class ViewController: UIViewController {
         
         if let firstResult = results.first {
             // I think this is where he's specifying the input 3D image
-            let anchor = ARAnchor(name: "ContemporaryFan", transform: firstResult.worldTransform)
+            let anchor = ARAnchor(name: "Test3", transform: firstResult.worldTransform)
             arView.session.add(anchor: anchor)
         } else {
             print("ERROR: Object placement failed to find surface.")
@@ -69,7 +69,7 @@ class ViewController: UIViewController {
 extension ViewController: ARSessionDelegate {
     func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
         for anchor in anchors {
-            if let anchorName = anchor.name, anchorName == "ContemporaryFan" {
+            if let anchorName = anchor.name, anchorName == "Test3" {
                 placeObject(named: anchorName, for: anchor)
             }
         }
